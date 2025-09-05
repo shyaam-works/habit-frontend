@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 
 function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -10,10 +10,7 @@ function Navbar() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/auth/check",
-          { withCredentials: true }
-        );
+        const response = await api.get("/api/auth/check"); // Updated URL
         setIsAuthenticated(response.data.message === "Authenticated");
         setError("");
       } catch (err) {
@@ -26,11 +23,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/logout",
-        {},
-        { withCredentials: true }
-      );
+      await api.post("/api/auth/logout", {}); // Updated URL
       setIsAuthenticated(false);
       setError("");
       navigate("/login");

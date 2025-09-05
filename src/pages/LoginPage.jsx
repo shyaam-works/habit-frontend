@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -12,9 +12,7 @@ const LoginPage = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/check", {
-          withCredentials: true,
-        });
+        const res = await api.get("/api/auth/check"); // Updated URL
         if (res.data.message === "Authenticated") {
           navigate("/"); // already logged in → redirect
         }
@@ -28,11 +26,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/login",
-        { email, password },
-        { withCredentials: true }
-      );
+      await api.post("/api/auth/login", { email, password }); // Updated URL
       navigate("/"); // redirect after successful login
     } catch (err) {
       setError(err.response?.data?.msg || "Login failed");

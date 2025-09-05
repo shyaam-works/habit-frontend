@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 import HeatmapNew from "../components/HeatmapNew.jsx";
 
 const HabitHeatmapCard = ({ habitId }) => {
@@ -13,9 +13,7 @@ const HabitHeatmapCard = ({ habitId }) => {
 
   const fetchHabit = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/habits/${habitId}`
-      );
+      const res = await api.get(`/api/habits/${habitId}`); // Updated URL
       setHabit(res.data);
       console.log(`Fetched habit ${habitId}:`, res.data);
     } catch (err) {
@@ -25,9 +23,7 @@ const HabitHeatmapCard = ({ habitId }) => {
 
   const fetchDates = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/habits/${habitId}/dates`
-      );
+      const res = await api.get(`/api/habits/${habitId}/dates`); // Updated URL
       const logs = res.data.map(({ date, streak }) => ({
         date,
         value: streak >= 7 ? 3 : streak >= 4 ? 2 : 1,
@@ -47,7 +43,8 @@ const HabitHeatmapCard = ({ habitId }) => {
   const handleToggle = async () => {
     try {
       if (habit) {
-        await axios.post(`http://localhost:5000/api/habits/${habitId}/toggle`, {
+        await api.post(`/api/habits/${habitId}/toggle`, {
+          // Updated URL
           date: selectedDate,
         });
         await Promise.all([fetchDates(), fetchHabit()]);

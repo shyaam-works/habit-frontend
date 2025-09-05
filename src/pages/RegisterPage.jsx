@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -13,9 +13,7 @@ const RegisterPage = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/check", {
-          withCredentials: true,
-        });
+        const res = await api.get("/api/auth/check"); // Updated URL
         if (res.data.message === "Authenticated") {
           navigate("/"); // already logged in → redirect
         }
@@ -29,11 +27,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/register",
-        { username, email, password },
-        { withCredentials: true }
-      );
+      await api.post("/api/auth/register", { username, email, password }); // Updated URL
       navigate("/"); // redirect after successful registration
     } catch (err) {
       setError(err.response?.data?.msg || "Registration failed");

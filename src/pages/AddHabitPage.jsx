@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 import { HexColorPicker } from "react-colorful";
 
 const AddHabitPage = () => {
   const [name, setName] = useState("");
-  const [color, setColor] = useState("#FF6347"); // Default to Tomato
+  const [color, setColor] = useState("#FF6347");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -16,11 +16,7 @@ const AddHabitPage = () => {
       return;
     }
     try {
-      await axios.post(
-        "http://localhost:5000/api/habits",
-        { name, color },
-        { withCredentials: true }
-      );
+      await api.post("/api/habits", { name, color }); // Updated URL
       setError("");
       navigate("/");
     } catch (err) {

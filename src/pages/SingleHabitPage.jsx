@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 import HeatmapNew from "../components/HeatmapNew.jsx";
 
 const SingleHabitPage = () => {
@@ -19,9 +19,7 @@ const SingleHabitPage = () => {
 
   const fetchHabit = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/habits/${id}`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`/api/habits/${id}`); // Updated URL
       setHabit(res.data);
       setEditName(res.data.name);
       setEditColor(res.data.color || "#000000");
@@ -36,10 +34,7 @@ const SingleHabitPage = () => {
 
   const fetchDates = async (yearToFetch) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/habits/${id}/dates`,
-        { withCredentials: true }
-      );
+      const res = await api.get(`/api/habits/${id}/dates`); // Updated URL
       const logs = res.data
         .map(({ date, streak }) => ({
           date,
@@ -59,11 +54,7 @@ const SingleHabitPage = () => {
 
   const handleToggle = async () => {
     try {
-      await axios.post(
-        `http://localhost:5000/api/habits/${id}/toggle`,
-        { date: selectedDate },
-        { withCredentials: true }
-      );
+      await api.post(`/api/habits/${id}/toggle`, { date: selectedDate }); // Updated URL
       await Promise.all([fetchHabit(), fetchDates(year)]);
       setError("");
     } catch (err) {
@@ -78,9 +69,7 @@ const SingleHabitPage = () => {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this habit?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/habits/${id}`, {
-          withCredentials: true,
-        });
+        await api.delete(`/api/habits/${id}`); // Updated URL
         navigate("/"); // Redirect to habits list
         setError("");
       } catch (err) {
@@ -94,11 +83,7 @@ const SingleHabitPage = () => {
 
   const handleEdit = async () => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/habits/${id}`,
-        { name: editName, color: editColor },
-        { withCredentials: true }
-      );
+      await api.put(`/api/habits/${id}`, { name: editName, color: editColor }); // Updated URL
       setIsEditing(false);
       await fetchHabit(); // Refresh habit data
       setError("");

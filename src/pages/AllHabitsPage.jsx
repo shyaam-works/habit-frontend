@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 
 const AllHabitsPage = () => {
   const [habits, setHabits] = useState([]);
@@ -9,9 +9,7 @@ const AllHabitsPage = () => {
 
   const fetchHabits = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/habits/all", {
-        withCredentials: true,
-      });
+      const res = await api.get("/api/habits/all"); // Updated URL
       setHabits(
         res.data.map((habit) => ({
           _id: habit._id,

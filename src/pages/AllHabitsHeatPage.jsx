@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../utils/api"; // Updated to use Axios instance
 import HeatmapNew from "../components/HeatmapNew.jsx";
 
 const AllHabitsHeatPage = () => {
@@ -13,17 +13,9 @@ const AllHabitsHeatPage = () => {
   const fetchHabits = async () => {
     try {
       console.log("Fetching habits...");
-      const habitsRes = await axios.get(
-        "http://localhost:5000/api/habits/all",
-        {
-          withCredentials: true,
-        }
-      );
+      const habitsRes = await api.get("/api/habits/all"); // Updated URL
       console.log("Habits response:", habitsRes.data);
-      const datesRes = await axios.get(
-        "http://localhost:5000/api/habits/all/dates",
-        { withCredentials: true }
-      );
+      const datesRes = await api.get("/api/habits/all/dates"); // Updated URL
       console.log("Dates response:", datesRes.data);
 
       const habitsData = habitsRes.data;
