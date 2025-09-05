@@ -1,33 +1,48 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../utils/api"; // Updated to use Axios instance
+import api from "../utils/api";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
-  // 🔹 Check authentication on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await api.get("/api/auth/check"); // Updated URL
-        if (res.data.message === "Authenticated") {
-          navigate("/"); // already logged in → redirect
-        }
-      } catch (err) {
-        // Not authenticated, do nothing (show login form)
+  const checkAuth = async (retries = 2, delay = 100) => {
+    try {
+      const res = await api.get("/api/auth/check");
+      const authenticated = res.data.message === "Authenticated";
+      setIsAuthenticated(authenticated);
+      return authenticated;
+    } catch (err) {
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return checkAuth(retries - 1, delay * 2); // Exponential backoff
       }
-    };
-    checkAuth();
-  }, [navigate]);
+      setIsAuthenticated(false);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    checkAuth(); // Run on mount
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/"); // Redirect when authenticated
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/api/auth/login", { email, password }); // Updated URL
-      navigate("/"); // redirect after successful login
+      await api.post("/api/auth/login", { email, password });
+      const isAuth = await checkAuth(); // Re-check auth after login
+      if (!isAuth) {
+        setError("Authentication failed after login");
+      }
     } catch (err) {
       setError(err.response?.data?.msg || "Login failed");
     }
