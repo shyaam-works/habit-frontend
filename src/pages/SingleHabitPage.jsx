@@ -129,83 +129,93 @@ const SingleHabitPage = () => {
 
   return (
     <div className="min-h-screen pt-16 px-4 flex flex-col items-center justify-center bg-white">
-      {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
-      {habit && (
-        <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
-          <h1 className="font-bold text-3xl mb-3 text-center">{habit.name}</h1>
-          <div className="text-lg mb-3 text-center">
-            Longest Streak: {habit.longestStreak} days | Current Streak:{" "}
-            {habit.currentStreak} days
+      {isLoading ? (
+        <div className="w-full max-w-5xl mx-auto flex flex-col items-center relative">
+          <div className="loader">
+            <div className="justify-content-center jimu-primary-loading"></div>
           </div>
-          {isEditing ? (
-            <div className="flex flex-col items-center gap-3 mb-3 w-full max-w-sm">
-              <input
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="p-1.5 text-sm border border-gray-300 rounded w-full"
-              />
-              <input
-                type="color"
-                value={editColor}
-                onChange={(e) => setEditColor(e.target.value)}
-                className="p-1.5 border border-gray-300 rounded w-full"
-              />
-              <button
-                onClick={handleEdit}
-                className="p-1.5 text-sm text-white rounded w-full"
-                style={{ backgroundColor: editColor || "#007bff" }}
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="p-1.5 bg-gray-300 text-black rounded w-full text-sm"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3 mb-3 w-full max-w-sm">
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="p-1.5 text-sm border border-gray-300 rounded w-full"
-              />
-              <button
-                onClick={handleToggle}
-                className="p-1.5 text-sm text-white rounded w-full"
-                style={{ backgroundColor: habit.color || "#007bff" }}
-              >
-                Toggle Completion
-              </button>
-              <div className="flex justify-around w-1/2">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="p-1.5 bg-gray-300 text-black rounded text-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="p-1.5 bg-red-500 text-white rounded text-sm"
-                >
-                  Delete
-                </button>
+        </div>
+      ) : (
+        <>
+          {error && (
+            <div className="text-red-500 mb-4 text-center">{error}</div>
+          )}
+          {habit && (
+            <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
+              <h1 className="font-bold text-3xl mb-3 text-center md:text-3xl">
+                {habit.name}
+              </h1>
+              <div className="text-lg mb-3 text-center md:text-lg">
+                Longest Streak: {habit.longestStreak} days | Current Streak:{" "}
+                {habit.currentStreak} days
+              </div>
+              {isEditing ? (
+                <div className="flex flex-col items-center gap-3 mb-3 w-full max-w-[90%] md:max-w-sm">
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="p-1.5 text-xs md:text-sm border border-gray-300 rounded w-full"
+                  />
+                  <input
+                    type="color"
+                    value={editColor}
+                    onChange={(e) => setEditColor(e.target.value)}
+                    className="p-1.5 border border-gray-300 rounded w-full"
+                  />
+                  <button
+                    onClick={handleEdit}
+                    className="p-1.5 text-xs md:text-sm text-white rounded w-full min-w-[80px]"
+                    style={{ backgroundColor: editColor || "#007bff" }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="p-1.5 bg-gray-300 text-black rounded w-full text-xs md:text-sm min-w-[80px]"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3 mb-3 w-full max-w-[90%] md:max-w-sm">
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="p-1.5 text-xs md:text-sm border border-gray-300 rounded w-full"
+                  />
+                  <button
+                    onClick={handleToggle}
+                    className="p-1.5 text-xs md:text-sm text-white rounded w-full min-w-[80px]"
+                    style={{ backgroundColor: habit.color || "#007bff" }}
+                  >
+                    Toggle Completion
+                  </button>
+                  <div className="flex justify-around w-full md:w-1/2">
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="p-1.5 bg-gray-300 text-black rounded text-xs md:text-sm min-w-[80px]"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="p-1.5 bg-red-500 text-white rounded text-xs md:text-sm min-w-[80px]"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-center">
+                <div className="w-[90vw] sm:w-full overflow-x-auto sm:overflow-x-visible pb-6">
+                  <HeatmapNew habit={habit} dates={dates} year={year} />
+                </div>
               </div>
             </div>
           )}
-          <div className="flex justify-center">
-            {isLoading ? (
-              <div className="loader">
-                <div className="justify-content-center jimu-primary-loading"></div>
-              </div>
-            ) : (
-              <HeatmapNew habit={habit} dates={dates} year={year} />
-            )}
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

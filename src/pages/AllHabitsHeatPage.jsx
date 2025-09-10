@@ -1,21 +1,24 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/api"; // Updated to use Axios instance
+import api from "../utils/api";
 import HeatmapNew from "../components/HeatmapNew.jsx";
+import "../styles/LoadingKeys.css";
 
 const AllHabitsHeatPage = () => {
   const calRef = useRef(null);
   const [habits, setHabits] = useState([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const fetchHabits = async () => {
     try {
+      setIsLoading(true);
       console.log("Fetching habits...");
-      const habitsRes = await api.get("/api/habits/all"); // Updated URL
+      const habitsRes = await api.get("/api/habits/all");
       console.log("Habits response:", habitsRes.data);
-      const datesRes = await api.get("/api/habits/all/dates"); // Updated URL
+      const datesRes = await api.get("/api/habits/all/dates");
       console.log("Dates response:", datesRes.data);
 
       const habitsData = habitsRes.data;
@@ -41,7 +44,6 @@ const AllHabitsHeatPage = () => {
             date,
             value: streak >= 7 ? 3 : streak >= 4 ? 2 : 1,
           }));
-        // Add dummy entry for January 1, 2025, to anchor the start
         if (
           logs.length === 0 ||
           new Date(logs[0].date) > new Date(year, 0, 1)
@@ -72,6 +74,8 @@ const AllHabitsHeatPage = () => {
         err.response?.data?.error || "Failed to fetch habits or dates";
       setError(errorMsg);
       if (err.response?.status === 401) navigate("/login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,38 +96,55 @@ const AllHabitsHeatPage = () => {
   return (
     <div className="min-h-screen pt-20 px-4 flex flex-col items-center justify-center max-w-5xl mb-4 mx-4">
       <style>{`
-             .ch-domain-text {
-               font-size: 14px !important;
-             }
-           `}</style>
-      {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
-      {habits.length === 0 && !error ? (
-        <p className="text-lg">No habits found. Create one!</p>
-      ) : (
-        habits.map((habitData) => (
-          <div key={habitData.habit._id} className="w-full mt-4">
-            <div className="flex items-center justify-center mb-2 w-screen">
-              <h1 className="text-3xl font-bold">{habitData.habit.name}</h1>
-              <button
-                onClick={() => navigate(`/habit/${habitData.habit._id}`)}
-                className="ml-4 px-2 py-1 text-sm font-normal text-white bg-blue-500 rounded-md hover:bg-blue-600 transition"
-              >
-                View Details
-              </button>
-            </div>
-            <div className="text-lg mb-2 text-center w-screen justify-center">
-              Longest Streak: {habitData.habit.longestStreak} days | Current
-              Streak: {habitData.habit.currentStreak} days
-            </div>
-            <div className="flex mb-8">
-              <HeatmapNew
-                habit={habitData.habit}
-                dates={habitData.dates}
-                year={year}
-              />
-            </div>
+            .ch-domain-text {
+              font-size: 14px !important;
+              white-space: nowrap !important;
+            }
+          `}</style>
+      {isLoading ? (
+        <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+          <div className="loader">
+            <div className="justify-content-center jimu-primary-loading"></div>
           </div>
-        ))
+        </div>
+      ) : (
+        <>
+          {error && (
+            <div className="text-red-500 mb-4 text-center">{error}</div>
+          )}
+          {habits.length === 0 && !error ? (
+            <p className="text-sm md:text-lg">No habits found. Create one!</p>
+          ) : (
+            habits.map((habitData) => (
+              <div key={habitData.habit._id} className="w-full mt-4">
+                <div className="flex items-center justify-center mb-2 w-screen mt-14 md:mt-8">
+                  <h1 className="text-2xl md:text-3xl font-bold">
+                    {habitData.habit.name}
+                  </h1>
+                  <button
+                    onClick={() => navigate(`/habit/${habitData.habit._id}`)}
+                    className="ml-4 px-2 py-1 text-xs md:text-sm font-normal text-white bg-blue-500 rounded-md hover:bg-blue-600 transition min-w-[80px]"
+                  >
+                    View Details
+                  </button>
+                </div>
+                <div className="text-sm md:text-lg mb-2 text-center w-screen justify-center">
+                  Longest Streak: {habitData.habit.longestStreak} days | Current
+                  Streak: {habitData.habit.currentStreak} days
+                </div>
+                <div className="flex justify-center mb-8">
+                  <div className="w-[90vw] sm:w-full overflow-x-auto sm:overflow-x-visible pb-6">
+                    <HeatmapNew
+                      habit={habitData.habit}
+                      dates={habitData.dates}
+                      year={year}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </>
       )}
     </div>
   );

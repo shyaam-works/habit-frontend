@@ -51,46 +51,52 @@ const AddHabitPage = () => {
   };
 
   return (
-    <main className="w-full min-h-screen pt-24 px-4 bg-gray-100 flex justify-center items-start">
-      <div className="w-full max-w-xl bg-white p-8 rounded-xl shadow-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">Add New Habit</h1>
+    <main className="w-full min-h-screen flex justify-center items-center bg-gray-100 px-4">
+      <div className="mt-44 md:mt-24 w-full max-w-2xl bg-white p-6 sm:p-10 rounded-xl shadow-md">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">
+          Add New Habit
+        </h1>
         {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-lg font-medium mb-1">Habit Name</label>
+            <label className="block text-base sm:text-lg font-medium mb-1">
+              Habit Name
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Read 10 pages"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm sm:text-base"
             />
           </div>
           <div>
-            <label className="block text-lg font-medium mb-2">
+            <label className="block text-base sm:text-lg font-medium mb-2">
               Pick a Color
             </label>
             <HexColorPicker
               color={color}
               onChange={setColor}
-              className="mb-4 rounded shadow"
+              className="mb-4 rounded shadow w-full"
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {getLighterShades(color).map((shade, index) => (
                 <div
                   key={index}
-                  className="w-7 h-7 rounded-full border border-gray-300 cursor-pointer"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-300 cursor-pointer"
                   style={{ backgroundColor: shade }}
                   onClick={() => setColor(shade)}
                   title={`Shade ${index + 1}`}
                 ></div>
               ))}
             </div>
-            <p className="mt-2 text-sm text-gray-600">Selected: {color}</p>
+            <p className="mt-2 text-sm text-gray-600 break-all">
+              Selected: {color}
+            </p>
           </div>
           <button
             type="submit"
-            className="w-full py-2 bg-green-600 text-white text-lg rounded-md hover:bg-green-700 transition"
+            className="w-full py-2 sm:py-3 bg-green-600 text-white text-base sm:text-lg rounded-md hover:bg-green-700 transition"
           >
             Add Habit
           </button>
