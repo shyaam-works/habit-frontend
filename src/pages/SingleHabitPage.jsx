@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../utils/api"; // Updated to use Axios instance
+import api from "../utils/api";
 import HeatmapNew from "../components/HeatmapNew.jsx";
+import "../styles/LoadingKeys.css";
 
 const SingleHabitPage = () => {
   const { id } = useParams();
@@ -16,10 +17,12 @@ const SingleHabitPage = () => {
   const [editName, setEditName] = useState("");
   const [editColor, setEditColor] = useState("#000000");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchHabit = async () => {
     try {
-      const res = await api.get(`/api/habits/${id}`); // Updated URL
+      setIsLoading(true);
+      const res = await api.get(`/api/habits/${id}`);
       setHabit(res.data);
       setEditName(res.data.name);
       setEditColor(res.data.color || "#000000");
@@ -29,12 +32,15 @@ const SingleHabitPage = () => {
       const errorMsg = err.response?.data?.error || "Failed to fetch habit";
       setError(errorMsg);
       if (err.response?.status === 401) navigate("/login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchDates = async (yearToFetch) => {
     try {
-      const res = await api.get(`/api/habits/${id}/dates`); // Updated URL
+      setIsLoading(true);
+      const res = await api.get(`/api/habits/${id}/dates`);
       const logs = res.data
         .map(({ date, streak }) => ({
           date,
@@ -49,12 +55,15 @@ const SingleHabitPage = () => {
         err.response?.data?.error || "Failed to fetch habit logs";
       setError(errorMsg);
       if (err.response?.status === 401) navigate("/login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleToggle = async () => {
     try {
-      await api.post(`/api/habits/${id}/toggle`, { date: selectedDate }); // Updated URL
+      setIsLoading(true);
+      await api.post(`/api/habits/${id}/toggle`, { date: selectedDate });
       await Promise.all([fetchHabit(), fetchDates(year)]);
       setError("");
     } catch (err) {
@@ -63,35 +72,43 @@ const SingleHabitPage = () => {
         err.response?.data?.error || "Failed to toggle completion";
       setError(errorMsg);
       if (err.response?.status === 401) navigate("/login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this habit?")) {
       try {
-        await api.delete(`/api/habits/${id}`); // Updated URL
-        navigate("/"); // Redirect to habits list
+        setIsLoading(true);
+        await api.delete(`/api/habits/${id}`);
+        navigate("/");
         setError("");
       } catch (err) {
         console.error("Error deleting habit", err);
         const errorMsg = err.response?.data?.error || "Failed to delete habit";
         setError(errorMsg);
         if (err.response?.status === 401) navigate("/login");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   const handleEdit = async () => {
     try {
-      await api.put(`/api/habits/${id}`, { name: editName, color: editColor }); // Updated URL
+      setIsLoading(true);
+      await api.put(`/api/habits/${id}`, { name: editName, color: editColor });
       setIsEditing(false);
-      await fetchHabit(); // Refresh habit data
+      await fetchHabit();
       setError("");
     } catch (err) {
       console.error("Error editing habit", err);
       const errorMsg = err.response?.data?.error || "Failed to edit habit";
       setError(errorMsg);
       if (err.response?.status === 401) navigate("/login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,7 +197,13 @@ const SingleHabitPage = () => {
             </div>
           )}
           <div className="flex justify-center">
-            <HeatmapNew habit={habit} dates={dates} year={year} />
+            {isLoading ? (
+              <div className="loader">
+                <div className="justify-content-center jimu-primary-loading"></div>
+              </div>
+            ) : (
+              <HeatmapNew habit={habit} dates={dates} year={year} />
+            )}
           </div>
         </div>
       )}
