@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
-import "./../styles/LoadingKeys.css";
 
 function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
-      setIsLoading(true);
       try {
         const response = await api.get("/api/auth/check");
         setIsAuthenticated(response.data.message === "Authenticated");
@@ -21,8 +18,6 @@ function Navbar() {
       } catch (err) {
         setIsAuthenticated(false);
         setError("");
-      } finally {
-        setIsLoading(false);
       }
     };
     checkAuth();
@@ -47,91 +42,85 @@ function Navbar() {
 
   return (
     <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-      {isLoading ? (
-        <div className="loader">
-          <div className="justify-content-center jimu-primary-loading"></div>
-        </div>
-      ) : (
-        <div
-          className={`max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center ${
-            isAuthenticated ? "justify-between" : "justify-center"
-          }`}
+      <div
+        className={`max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center ${
+          isAuthenticated ? "justify-between" : "justify-center"
+        }`}
+      >
+        <Link
+          to="/"
+          className="text-2xl sm:text-3xl font-extrabold text-black-600 tracking-wide"
         >
-          <Link
-            to="/"
-            className="text-2xl sm:text-3xl font-extrabold text-black-600 tracking-wide"
-          >
-            HabitTracker
-          </Link>
+          HabitTracker
+        </Link>
 
-          {isAuthenticated && (
-            <>
+        {isAuthenticated && (
+          <>
+            <button
+              className="sm:hidden text-slate-700 focus:outline-none"
+              onClick={toggleMenu}
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d={
+                    isMenuOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
+                />
+              </svg>
+            </button>
+            <div
+              className={`${
+                isMenuOpen ? "block" : "hidden"
+              } sm:flex sm:items-center sm:space-x-10 absolute sm:static top-14 left-0 w-full sm:w-auto bg-white sm:bg-transparent shadow-md sm:shadow-none p-4 sm:p-0 z-40`}
+            >
+              <Link
+                to="/"
+                className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                All Habits
+              </Link>
+              <Link
+                to="/add"
+                className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Add Habit
+              </Link>
+              <Link
+                to="/all-habits-heat"
+                className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                All Habits Heat
+              </Link>
               <button
-                className="sm:hidden text-slate-700 focus:outline-none"
-                onClick={toggleMenu}
+                onClick={handleLogout}
+                className="block sm:inline-block text-xs sm:text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded px-3 sm:px-4 py-1.5 sm:py-2 transition"
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d={
-                      isMenuOpen
-                        ? "M6 18L18 6M6 6l12 12"
-                        : "M4 6h16M4 12h16M4 18h16"
-                    }
-                  />
-                </svg>
+                Logout
               </button>
-              <div
-                className={`${
-                  isMenuOpen ? "block" : "hidden"
-                } sm:flex sm:items-center sm:space-x-10 absolute sm:static top-14 left-0 w-full sm:w-auto bg-white sm:bg-transparent shadow-md sm:shadow-none p-4 sm:p-0 z-40`}
-              >
-                <Link
-                  to="/"
-                  className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  All Habits
-                </Link>
-                <Link
-                  to="/add"
-                  className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Add Habit
-                </Link>
-                <Link
-                  to="/all-habits-heat"
-                  className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  All Habits Heat
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block sm:inline-block text-xs sm:text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded px-3 sm:px-4 py-1.5 sm:py-2 transition"
-                >
-                  Logout
-                </button>
-              </div>
-            </>
-          )}
-
-          {error && (
-            <div className="absolute top-14 right-4 sm:right-6 text-red-500 text-sm md:text-base">
-              {error}
             </div>
-          )}
-        </div>
-      )}
+          </>
+        )}
+
+        {error && (
+          <div className="absolute top-14 right-4 sm:right-6 text-red-500 text-sm md:text-base">
+            {error}
+          </div>
+        )}
+      </div>
     </nav>
   );
 }
