@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import HeatmapNew from "../components/HeatmapNew.jsx";
+import ding from "../assets/ding.mp3";
 import "../styles/LoadingKeys.css";
 
 const SingleHabitPage = () => {
@@ -18,6 +19,38 @@ const SingleHabitPage = () => {
   const [editColor, setEditColor] = useState("#000000");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  // Initialize Audio object
+  const audio = new Audio(ding);
+
+  // Preload audio
+  useEffect(() => {
+    audio.preload = "auto";
+  }, []);
+
+  // Check completion status for selectedDate
+  useEffect(() => {
+    const checkCompletion = async () => {
+      try {
+        if (selectedDate === new Date().toISOString().split("T")[0]) {
+          const res = await api.get(`/api/habits/${id}/completed-today`);
+          setIsCompleted(res.data.completed);
+        } else {
+          const normalizedSelectedDate = selectedDate;
+          const completed = dates.some(
+            (log) =>
+              new Date(log.date).toISOString().split("T")[0] ===
+              normalizedSelectedDate
+          );
+          setIsCompleted(completed);
+        }
+      } catch (err) {
+        console.error("Error checking completion:", err);
+      }
+    };
+    if (habit) checkCompletion();
+  }, [id, selectedDate, dates, habit]);
 
   const fetchHabit = async () => {
     try {
@@ -63,8 +96,16 @@ const SingleHabitPage = () => {
   const handleToggle = async () => {
     try {
       setIsLoading(true);
-      await api.post(`/api/habits/${id}/toggle`, { date: selectedDate });
+      const wasCompleted = isCompleted;
+      const res = await api.post(`/api/habits/${id}/toggle`, {
+        date: selectedDate,
+      });
       await Promise.all([fetchHabit(), fetchDates(year)]);
+      const today = new Date().toISOString().split("T")[0];
+      if (!wasCompleted && res.data.completed && selectedDate === today) {
+        audio.play().catch((err) => console.error("Audio error:", err));
+      }
+      setIsCompleted(res.data.completed);
       setError("");
     } catch (err) {
       console.error("Error toggling habit completion", err);
@@ -132,7 +173,7 @@ const SingleHabitPage = () => {
       {isLoading ? (
         <div className="w-full max-w-5xl mx-auto flex flex-col items-center relative">
           <div className="loader">
-            <div className="justify-content-center jimu-primary-loading"></div>
+            <div className="jimu-primary-loading"></div>
           </div>
         </div>
       ) : (
@@ -187,10 +228,16 @@ const SingleHabitPage = () => {
                   />
                   <button
                     onClick={handleToggle}
-                    className="p-1.5 text-xs md:text-sm text-white rounded w-full min-w-[80px]"
-                    style={{ backgroundColor: habit.color || "#007bff" }}
+                    className={`p-1.5 text-xs md:text-sm text-white rounded w-full min-w-[80px] flex items-center justify-center gap-2 ${
+                      isCompleted ? "bg-green-500" : ""
+                    }`}
+                    style={{
+                      backgroundColor: isCompleted
+                        ? undefined
+                        : habit.color || "#007bff",
+                    }}
                   >
-                    Toggle Completion
+                    {isCompleted ? <>Completed ✅</> : "Toggle Completion"}
                   </button>
                   <div className="flex justify-around w-full md:w-1/2">
                     <button
