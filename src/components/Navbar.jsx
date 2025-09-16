@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
-import "../styles/LoadingKeys.css"; // Assumes LoadingKeys.css exists
+import "../styles/Loadingkeys.css"; // Assumes LoadingKeys.css exists
 
 function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -48,8 +48,8 @@ function Navbar() {
   return (
     <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
       {isLoading ? (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-center">
-          <div className="loader w-8 h-8 border-4 border-t-green-500 border-gray-200 rounded-full animate-spin"></div>
+        <div className="loader">
+          <div className="justify-content-center jimu-primary-loading"></div>
         </div>
       ) : (
         <div

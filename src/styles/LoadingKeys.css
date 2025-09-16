@@ -1,4 +1,7 @@
 .loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -34,13 +37,14 @@
 }
 
 .jimu-primary-loading {
-  text-indent: -9999em;
+  text-indent: -99999999em;
   margin: auto;
   position: absolute;
   right: calc(50% - 6.8px);
   top: calc(50% - 16px);
   -webkit-animation-delay: 0.16s !important;
   animation-delay: 0.16s !important;
+  font-size: 0;
 }
 
 @-webkit-keyframes loading-keys-app-loading {
