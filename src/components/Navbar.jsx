@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
-import "../styles/Loadingkeys.css"; // Assumes LoadingKeys.css exists
+import "./../styles/LoadingKeys.css";
 
 function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
