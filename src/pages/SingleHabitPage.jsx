@@ -190,6 +190,9 @@ const SingleHabitPage = () => {
                 Longest Streak: {habit.longestStreak} days | Current Streak:{" "}
                 {habit.currentStreak} days
               </div>
+              <div className="text-lg mb-3 text-center md:text-lg">
+                Total Days in {year}: {dates.length} days
+              </div>
               {isEditing ? (
                 <div className="flex flex-col items-center gap-3 mb-3 w-full max-w-[90%] md:max-w-sm">
                   <input
