@@ -94,8 +94,8 @@ const AnalyticsPage = () => {
   );
 
   return (
-    <div className="min-h-screen pt-20 pb-12 px-4 sm:px-6 max-w-7xl mx-auto bg-white">
-      <h1 className="text-3xl sm:text-4xl font-bold text-center mb-10 text-gray-800">
+    <div className="min-h-screen pt-20 pb-12 px-4 sm:px-6 max-w-7xl mx-auto bg-white ">
+      <h1 className="text-3xl mt-12 sm:text-4xl font-bold text-center mb-10 text-gray-800">
         Analytics Dashboard
       </h1>
 
