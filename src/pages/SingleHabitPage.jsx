@@ -249,7 +249,7 @@ const SingleHabitPage = () => {
                 </div>
               )}
               <div className="flex justify-center mb-8 ">
-                <div className="w-[90vw] sm:w-full overflow-x-auto sm:overflow-x-visible ">
+                <div className="w-[90vw] sm:w-full overflow-x-auto overflow-y-visible pb-6 ">
                   <HeatmapNew
                     habit={habit}
                     dates={dates}
