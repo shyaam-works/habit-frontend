@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
-import "../styles/LoadingKeys.css"; // spinner css
+import "../styles/LoadingKeys.css";
 import "react-toastify/dist/ReactToastify.css";
 
 const Navbar = () => {
@@ -30,10 +30,8 @@ const Navbar = () => {
     setLogoutLoading(true);
     try {
       await api.post("/api/auth/logout");
-
       toast.success("Logged out successfully");
 
-      // IMPORTANT: allow toast paint, then navigate
       setTimeout(() => {
         navigate("/login", { replace: true });
       }, 100);
@@ -73,7 +71,7 @@ const Navbar = () => {
     }
   };
 
-  // close menu on outside click
+  // Close menu when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -84,9 +82,15 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Helper: Navigate + close menu
+  const navigateAndClose = (path) => {
+    setOpen(false); // Close menu immediately
+    navigate(path);
+  };
+
   return (
     <>
-      {/* LOGOUT LOADER (NON-BLOCKING) */}
+      {/* LOGOUT LOADER */}
       {logoutLoading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70">
           <div className="loadingspinner">
@@ -102,7 +106,7 @@ const Navbar = () => {
       <nav className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <h1
-            onClick={() => navigate("/habits")}
+            onClick={() => navigateAndClose("/habits")}
             className="text-2xl font-extrabold cursor-pointer"
           >
             HabitTracker
@@ -111,7 +115,7 @@ const Navbar = () => {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setOpen((p) => !p)}
-              className="p-2 rounded-full hover:bg-gray-100"
+              className="p-2 rounded-full hover:bg-gray-100 transition"
             >
               <span className="text-2xl font-bold">⋮</span>
             </button>
@@ -120,24 +124,33 @@ const Navbar = () => {
               <div className="absolute right-0 mt-3 w-52 bg-white border rounded-xl shadow-lg overflow-hidden">
                 <NavItem
                   label="All Habits"
-                  onClick={() => navigate("/habits")}
+                  onClick={() => navigateAndClose("/habits")}
                 />
-                <NavItem label="Add Habit" onClick={() => navigate("/add")} />
+                <NavItem
+                  label="Add Habit"
+                  onClick={() => navigateAndClose("/add")}
+                />
                 <NavItem
                   label="All Habits Heat"
-                  onClick={() => navigate("/all-habits-heat")}
+                  onClick={() => navigateAndClose("/all-habits-heat")}
                 />
                 <NavItem
                   label="Analytics"
-                  onClick={() => navigate("/analytics")}
+                  onClick={() => navigateAndClose("/analytics")}
                 />
                 <NavItem
                   label="Change Password"
-                  onClick={() => setShowChangePw(true)}
+                  onClick={() => {
+                    setOpen(false); // Close menu
+                    setShowChangePw(true);
+                  }}
                 />
                 <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50"
+                  onClick={() => {
+                    setOpen(false); // Close menu before logout
+                    handleLogout();
+                  }}
+                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition"
                 >
                   Logout
                 </button>
@@ -179,17 +192,17 @@ const Navbar = () => {
               placeholder="Confirm password"
             />
 
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowChangePw(false)}
-                className="px-4 py-2 border rounded-lg"
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleChangePassword}
                 disabled={loading}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-70 transition"
               >
                 {loading ? "Updating..." : "Update"}
               </button>
@@ -201,29 +214,32 @@ const Navbar = () => {
   );
 };
 
-/* helpers */
+/* Reusable Nav Item */
 const NavItem = ({ label, onClick }) => (
   <button
-    onClick={() => {
-      onClick();
-    }}
-    className="w-full text-left px-4 py-3 hover:bg-gray-100"
+    onClick={onClick}
+    className="w-full text-left px-4 py-3 hover:bg-gray-100 transition"
   >
     {label}
   </button>
 );
 
+/* Reusable Password Input */
 const PasswordField = ({ value, setValue, show, setShow, placeholder }) => (
-  <div className="flex items-center border rounded-xl px-3 py-2 mb-4">
+  <div className="flex items-center border border-gray-300 rounded-xl px-3 py-2 mb-4 focus-within:border-indigo-500 transition">
     <FaLock className="text-gray-400 mr-2" />
     <input
       type={show ? "text" : "password"}
       placeholder={placeholder}
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      className="w-full outline-none"
+      className="w-full outline-none text-base"
     />
-    <button onClick={() => setShow((p) => !p)}>
+    <button
+      type="button"
+      onClick={() => setShow((p) => !p)}
+      className="text-gray-500 hover:text-gray-700"
+    >
       {show ? <FaEye /> : <FaEyeSlash />}
     </button>
   </div>
