@@ -94,8 +94,8 @@ const AnalyticsPage = () => {
   );
 
   return (
-    <div className="min-h-screen pt-20 pb-12 px-4 sm:px-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl sm:text-4xl font-bold text-center mb-10 text-gray-800 dark:text-gray-100">
+    <div className="min-h-screen pt-20 pb-12 px-4 sm:px-6 max-w-7xl mx-auto bg-white">
+      <h1 className="text-3xl sm:text-4xl font-bold text-center mb-10 text-gray-800">
         Analytics Dashboard
       </h1>
 
@@ -118,12 +118,10 @@ const AnalyticsPage = () => {
         ].map((stat, i) => (
           <div
             key={i}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-center"
+            className="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200"
           >
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {stat.label}
-            </p>
-            <p className="text-2xl sm:text-3xl font-bold mt-3 text-emerald-600 dark:text-emerald-400">
+            <p className="text-sm text-gray-500">{stat.label}</p>
+            <p className="text-2xl sm:text-3xl font-bold mt-3 text-emerald-600">
               {stat.value}
             </p>
           </div>
@@ -132,15 +130,15 @@ const AnalyticsPage = () => {
 
       {/* Best / Worst Day */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Best Day</p>
-          <p className="text-xl sm:text-2xl font-bold mt-3">
+        <div className="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200">
+          <p className="text-sm text-gray-500">Best Day</p>
+          <p className="text-xl sm:text-2xl font-bold mt-3 text-gray-800">
             {analytics.bestDay || "N/A"}
           </p>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">Worst Day</p>
-          <p className="text-xl sm:text-2xl font-bold mt-3">
+        <div className="bg-white rounded-xl shadow-lg p-6 text-center border border-gray-200">
+          <p className="text-sm text-gray-500">Worst Day</p>
+          <p className="text-xl sm:text-2xl font-bold mt-3 text-gray-800">
             {analytics.worstDay || "N/A"}
           </p>
         </div>
@@ -148,7 +146,7 @@ const AnalyticsPage = () => {
 
       {/* Habit Summary Cards */}
       <div className="mb-12">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 text-gray-800">
           Your Habits
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -158,19 +156,19 @@ const AnalyticsPage = () => {
               to={`/habit/${habit._id}`}
               className={`block p-6 rounded-xl shadow-lg border-2 transition hover:shadow-2xl ${
                 selectedHabitId === habit._id
-                  ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-emerald-300 dark:hover:border-emerald-600"
+                  ? "border-emerald-500 bg-emerald-50"
+                  : "border-gray-200 bg-white hover:border-emerald-300"
               }`}
             >
-              <h3 className="text-xl font-bold">{habit.name}</h3>
-              <p className="text-2xl font-semibold mt-3 text-emerald-600 dark:text-emerald-400">
+              <h3 className="text-xl font-bold text-gray-800">{habit.name}</h3>
+              <p className="text-2xl font-semibold mt-3 text-emerald-600">
                 {habit.consistency}% consistency
               </p>
-              <div className="mt-5 grid grid-cols-2 text-sm text-gray-600 dark:text-gray-300">
+              <div className="mt-5 grid grid-cols-2 text-sm text-gray-600">
                 <span>Longest: {habit.longestStreak} days</span>
                 <span>Current: {habit.currentStreak} days</span>
               </div>
-              <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+              <p className="mt-3 text-sm font-medium text-emerald-700">
                 Today: {habit.completedToday ? "✅ Completed" : "❌ Missed"}
               </p>
             </Link>
@@ -179,20 +177,20 @@ const AnalyticsPage = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10">
+      <div className="bg-gray-50 rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10 text-gray-800">
           Progress Over Time
         </h2>
 
         {/* Habit Selector */}
         <div className="max-w-full mx-auto mb-10 px-4">
-          <label className="block text-lg font-medium text-center mb-3 text-gray-700 dark:text-gray-300">
+          <label className="block text-lg font-medium text-center mb-3 text-gray-700">
             Select Habit for Detailed View
           </label>
           <select
             value={selectedHabitId || ""}
             onChange={(e) => setSelectedHabitId(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-800 text-base focus:outline-none focus:ring-4 focus:ring-emerald-500 transition"
+            className="w-full px-4 py-3 rounded-xl border-2 border-emerald-300 bg-white text-base focus:outline-none focus:ring-4 focus:ring-emerald-500 transition"
           >
             {analytics.habitStats.map((habit) => (
               <option key={habit._id} value={habit._id}>
@@ -205,8 +203,8 @@ const AnalyticsPage = () => {
         {/* Charts Grid - Stacks on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
           {/* Individual Habit Bar Chart */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8">
-            <h3 className="text-xl sm:text-2xl font-bold text-center mb-6">
+          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200">
+            <h3 className="text-xl sm:text-2xl font-bold text-center mb-6 text-gray-800">
               {selectedHabit?.name || "Habit"} Progress
             </h3>
 
@@ -218,7 +216,7 @@ const AnalyticsPage = () => {
                   className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
                     individualGraphType === type
                       ? "bg-emerald-600 text-white shadow-md"
-                      : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                   }`}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -254,13 +252,13 @@ const AnalyticsPage = () => {
               </BarChart>
             </ResponsiveContainer>
 
-            <p className="text-center mt-8 text-base">
+            <p className="text-center mt-8 text-base text-gray-700">
               {individualGraphType.charAt(0).toUpperCase() +
                 individualGraphType.slice(1)}{" "}
               completions for{" "}
               <Link
                 to={`/habit/${selectedHabitId}`}
-                className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                className="font-bold text-emerald-600 hover:underline"
               >
                 {selectedHabit?.name}
               </Link>
@@ -268,8 +266,8 @@ const AnalyticsPage = () => {
           </div>
 
           {/* Overall Line Chart */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8">
-            <h3 className="text-xl sm:text-2xl font-bold text-center mb-6">
+          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200">
+            <h3 className="text-xl sm:text-2xl font-bold text-center mb-6 text-gray-800">
               Overall Progress
             </h3>
 
@@ -281,7 +279,7 @@ const AnalyticsPage = () => {
                   className={`px-5 py-2.5 rounded-lg font-medium text-sm transition-all ${
                     overallGraphType === type
                       ? "bg-emerald-600 text-white shadow-md"
-                      : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                   }`}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -319,7 +317,7 @@ const AnalyticsPage = () => {
               </LineChart>
             </ResponsiveContainer>
 
-            <p className="text-center mt-6 text-base">
+            <p className="text-center mt-6 text-base text-gray-700">
               Total completions across all habits
             </p>
           </div>
