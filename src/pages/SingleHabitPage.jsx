@@ -153,16 +153,6 @@ const SingleHabitPage = () => {
     }
   };
 
-  const handlePrevYear = () => {
-    setYear((prevYear) => prevYear - 1);
-    fetchDates(year - 1);
-  };
-
-  const handleNextYear = () => {
-    setYear((prevYear) => prevYear + 1);
-    fetchDates(year + 1);
-  };
-
   useEffect(() => {
     fetchHabit();
     fetchDates(year);
@@ -182,7 +172,7 @@ const SingleHabitPage = () => {
             <div className="text-red-500 mb-4 text-center">{error}</div>
           )}
           {habit && (
-            <div className="w-full max-w-5xl mx-auto flex flex-col items-center">
+            <div className="w-full max-w-5xl mx-auto flex flex-col items-center ">
               <h1 className="font-bold text-3xl mb-3 text-center md:text-3xl">
                 {habit.name}
               </h1>
@@ -258,9 +248,15 @@ const SingleHabitPage = () => {
                   </div>
                 </div>
               )}
-              <div className="flex justify-center">
-                <div className="w-[90vw] sm:w-full overflow-x-auto sm:overflow-x-visible pb-6">
-                  <HeatmapNew habit={habit} dates={dates} year={year} />
+              <div className="flex justify-center mb-8 ">
+                <div className="w-[90vw] sm:w-full overflow-x-auto sm:overflow-x-visible ">
+                  <HeatmapNew
+                    habit={habit}
+                    dates={dates}
+                    year={year}
+                    onPrevYear={() => setYear((y) => y - 1)}
+                    onNextYear={() => setYear((y) => y + 1)}
+                  />
                 </div>
               </div>
             </div>

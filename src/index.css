@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Custom Emerald Toast Theme */
+/* Custom Emerald Toast Theme */
+.Toastify__toast--success {
+  background: #10b981 !important; /* emerald-600 */
+  color: white !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+}
+
+.Toastify__toast--success .Toastify__toast-icon svg {
+  color: white !important;
+  fill: white !important;
+}
+
+.Toastify__toast--error {
+  background: #ef4444 !important;
+  color: white !important;
+  border-radius: 12px !important;
+}
+
+.Toastify__toast--error .Toastify__toast-icon svg {
+  color: white !important;
+  fill: white !important;
+}
+
+.Toastify__toast-body {
+  color: white !important;
+  font-weight: 600;
+}
+
+.Toastify__progress-bar {
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+.Toastify__toast {
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+}

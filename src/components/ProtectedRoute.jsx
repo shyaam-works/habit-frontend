@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import api from "../utils/api"; // Updated to use Axios instance
+import api from "../utils/api";
+import Navbar from "./Navbar";
 
 const ProtectedRoute = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -8,9 +9,9 @@ const ProtectedRoute = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await api.get("/api/auth/check"); // Updated URL
-        setIsAuthenticated(response.data.message === "Authenticated");
-      } catch (err) {
+        const res = await api.get("/api/auth/check");
+        setIsAuthenticated(res.data.message === "Authenticated");
+      } catch {
         setIsAuthenticated(false);
       }
     };
@@ -21,7 +22,14 @@ const ProtectedRoute = () => {
     return <div>Loading...</div>;
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  return isAuthenticated ? (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  ) : (
+    <Navigate to="/login" replace />
+  );
 };
 
 export default ProtectedRoute;

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import CalHeatmap from "cal-heatmap";
-import TooltipPlugin from "cal-heatmap/plugins/Tooltip"; // Import tooltip plugin
+import TooltipPlugin from "cal-heatmap/plugins/Tooltip";
 import "cal-heatmap/cal-heatmap.css";
 
 // Function to darken a hex color by reducing lightness
@@ -9,11 +9,14 @@ const darkenColor = (hex, percent) => {
   const r = parseInt(hex.substr(0, 2), 16);
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
+
   const rNorm = r / 255;
   const gNorm = g / 255;
   const bNorm = b / 255;
+
   const max = Math.max(rNorm, gNorm, bNorm);
   const min = Math.min(rNorm, gNorm, bNorm);
+
   let h,
     s,
     l = (max + min) / 2;
@@ -38,8 +41,9 @@ const darkenColor = (hex, percent) => {
   }
 
   l = Math.max(0, Math.min(1, l - percent / 100));
-  let m2 = l <= 0.5 ? l * (1 + s) : l + s - l * s;
-  let m1 = 2 * l - m2;
+
+  const m2 = l <= 0.5 ? l * (1 + s) : l + s - l * s;
+  const m1 = 2 * l - m2;
 
   const hueToRgb = (m1, m2, h) => {
     if (h < 0) h += 1;
@@ -59,21 +63,18 @@ const darkenColor = (hex, percent) => {
     .padStart(2, "0")}${Math.round(bNew).toString(16).padStart(2, "0")}`;
 };
 
-const HeatmapNew = ({ habit, dates }) => {
+const HeatmapNew = ({ habit, dates, year, onPrevYear, onNextYear }) => {
   const calRef = useRef(null);
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     if (!habit || !dates || dates.length === 0) return;
 
     const cal = new CalHeatmap();
 
-    // Filter dates for the current year
     const yearDates = dates.filter(
-      (d) => new Date(d.date).getFullYear() === currentYear
+      (d) => new Date(d.date).getFullYear() === year
     );
 
-    // Use habit.color or fallback
     const baseColor = habit?.color || "#16a34a";
     const color1 = baseColor;
     const color2 = darkenColor(baseColor, 20);
@@ -83,16 +84,16 @@ const HeatmapNew = ({ habit, dates }) => {
       {
         itemSelector: calRef.current,
         date: {
-          start: new Date(currentYear, 1, 1), // Starts Jan 1 of selected year
+          start: new Date(year, 1, 1),
         },
-        range: 12, // Full 12 months
+        range: 12,
         domain: {
           type: "month",
           gutter: 16,
           label: {
             position: "bottom",
-            text: (timestamp) =>
-              new Date(timestamp).toLocaleString("default", { month: "short" }),
+            text: (ts) =>
+              new Date(ts).toLocaleString("default", { month: "short" }),
             offset: { x: 0, y: 16 },
             fontSize: "14px",
             fontWeight: "bold",
@@ -125,48 +126,43 @@ const HeatmapNew = ({ habit, dates }) => {
           TooltipPlugin,
           {
             enabled: true,
-            text: (ts, value, dayjsDate) => {
-              const formattedDate = dayjsDate.format("MMM D, YYYY");
-              return formattedDate;
-            },
+            text: (_, __, dayjsDate) => dayjsDate.format("MMM D, YYYY"),
           },
         ],
       ]
     );
 
-    return () => {
-      cal.destroy();
-    };
-  }, [habit, dates, currentYear]);
-
-  const handlePrevYear = () => setCurrentYear((prevYear) => prevYear - 1);
-  const handleNextYear = () => setCurrentYear((prevYear) => prevYear + 1);
+    return () => cal.destroy();
+  }, [habit, dates, year]);
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full flex flex-col items-center">
       <style>{`
         .ch-domain-text {
           font-size: 14px !important;
         }
       `}</style>
-      <div className="flex gap-4 mb-4 ml-4 ">
+
+      <div className="flex gap-4 mb-4 justify-center">
         <button
-          onClick={handlePrevYear}
+          onClick={onPrevYear}
           className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
         >
           Prev Yr
         </button>
-        <p className="px-2 py-1 bg-gray-200 rounded text-sm">{currentYear}</p>
+
+        <p className="px-2 py-1 bg-gray-200 rounded text-sm">{year}</p>
+
         <button
-          onClick={handleNextYear}
+          onClick={onNextYear}
           className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm"
         >
           Next Yr
         </button>
       </div>
-      <div className="w-full flex justify-center items-center">
-        <div ref={calRef} className="w-full max-w-full" />
-      </div>
+
+      {/* 🔴 THIS is the key fix */}
+      <div ref={calRef} className="w-fit mx-auto" />
     </div>
   );
 };

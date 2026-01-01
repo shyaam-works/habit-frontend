@@ -1,128 +1,232 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
+import { toast } from "react-toastify";
+import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
+import "../styles/LoadingKeys.css"; // spinner css
+import "react-toastify/dist/ReactToastify.css";
 
-function Navbar() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [error, setError] = useState("");
+const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await api.get("/api/auth/check");
-        setIsAuthenticated(response.data.message === "Authenticated");
-        setError("");
-      } catch (err) {
-        setIsAuthenticated(false);
-        setError("");
-      }
-    };
-    checkAuth();
-  }, [location.pathname]);
+  // change password
+  const [showChangePw, setShowChangePw] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // logout
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
+  // visibility toggles
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
 
   const handleLogout = async () => {
+    setLogoutLoading(true);
     try {
-      await api.post("/api/auth/logout", {});
-      setIsAuthenticated(false);
-      setError("");
-      setIsMenuOpen(false);
-      navigate("/login");
+      await api.post("/api/auth/logout");
+
+      toast.success("Logged out successfully");
+
+      // IMPORTANT: allow toast paint, then navigate
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 100);
     } catch (err) {
-      console.error("Error logging out", err);
-      setError(err.response?.data?.error || "Failed to logout");
+      toast.error("Logout failed");
+      setLogoutLoading(false);
     }
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await api.post("/api/auth/changepw", {
+        currentPassword,
+        newPassword,
+      });
+
+      toast.success("Password changed successfully");
+      setShowChangePw(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Password change failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-      <div
-        className={`max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center ${
-          isAuthenticated ? "justify-between" : "justify-center"
-        }`}
-      >
-        <Link
-          to="/"
-          className="text-2xl sm:text-3xl font-extrabold text-black-600 tracking-wide"
-        >
-          HabitTracker
-        </Link>
+  // close menu on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
-        {isAuthenticated && (
-          <>
+  return (
+    <>
+      {/* LOGOUT LOADER (NON-BLOCKING) */}
+      {logoutLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70">
+          <div className="loadingspinner">
+            <div id="square1"></div>
+            <div id="square2"></div>
+            <div id="square3"></div>
+            <div id="square4"></div>
+            <div id="square5"></div>
+          </div>
+        </div>
+      )}
+
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-white shadow-md">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1
+            onClick={() => navigate("/habits")}
+            className="text-2xl font-extrabold cursor-pointer"
+          >
+            HabitTracker
+          </h1>
+
+          <div className="relative" ref={menuRef}>
             <button
-              className="sm:hidden text-slate-700 focus:outline-none"
-              onClick={toggleMenu}
+              onClick={() => setOpen((p) => !p)}
+              className="p-2 rounded-full hover:bg-gray-100"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d={
-                    isMenuOpen
-                      ? "M6 18L18 6M6 6l12 12"
-                      : "M4 6h16M4 12h16M4 18h16"
-                  }
-                />
-              </svg>
+              <span className="text-2xl font-bold">⋮</span>
             </button>
-            <div
-              className={`${
-                isMenuOpen ? "block" : "hidden"
-              } sm:flex sm:items-center sm:space-x-10 absolute sm:static top-14 left-0 w-full sm:w-auto bg-white sm:bg-transparent shadow-md sm:shadow-none p-4 sm:p-0 z-40`}
-            >
-              <Link
-                to="/"
-                className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                All Habits
-              </Link>
-              <Link
-                to="/add"
-                className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Add Habit
-              </Link>
-              <Link
-                to="/all-habits-heat"
-                className="block sm:inline-block text-base md:text-lg font-semibold text-slate-700 hover:text-sky-600 transition mb-2 sm:mb-0"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                All Habits Heat
-              </Link>
+
+            {open && (
+              <div className="absolute right-0 mt-3 w-52 bg-white border rounded-xl shadow-lg overflow-hidden">
+                <NavItem
+                  label="All Habits"
+                  onClick={() => navigate("/habits")}
+                />
+                <NavItem label="Add Habit" onClick={() => navigate("/add")} />
+                <NavItem
+                  label="All Habits Heat"
+                  onClick={() => navigate("/all-habits-heat")}
+                />
+                <NavItem
+                  label="Analytics"
+                  onClick={() => navigate("/analytics")}
+                />
+                <NavItem
+                  label="Change Password"
+                  onClick={() => setShowChangePw(true)}
+                />
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* CHANGE PASSWORD MODAL */}
+      {showChangePw && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h2 className="text-xl font-semibold mb-6 text-center">
+              Change Password
+            </h2>
+
+            <PasswordField
+              value={currentPassword}
+              setValue={setCurrentPassword}
+              show={showCurrentPw}
+              setShow={setShowCurrentPw}
+              placeholder="Current password"
+            />
+
+            <PasswordField
+              value={newPassword}
+              setValue={setNewPassword}
+              show={showNewPw}
+              setShow={setShowNewPw}
+              placeholder="New password"
+            />
+
+            <PasswordField
+              value={confirmNewPassword}
+              setValue={setConfirmNewPassword}
+              show={showConfirmPw}
+              setShow={setShowConfirmPw}
+              placeholder="Confirm password"
+            />
+
+            <div className="flex justify-end gap-3">
               <button
-                onClick={handleLogout}
-                className="block sm:inline-block text-xs sm:text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded px-3 sm:px-4 py-1.5 sm:py-2 transition"
+                onClick={() => setShowChangePw(false)}
+                className="px-4 py-2 border rounded-lg"
               >
-                Logout
+                Cancel
+              </button>
+              <button
+                onClick={handleChangePassword}
+                disabled={loading}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+              >
+                {loading ? "Updating..." : "Update"}
               </button>
             </div>
-          </>
-        )}
-
-        {error && (
-          <div className="absolute top-14 right-4 sm:right-6 text-red-500 text-sm md:text-base">
-            {error}
           </div>
-        )}
-      </div>
-    </nav>
+        </div>
+      )}
+    </>
   );
-}
+};
+
+/* helpers */
+const NavItem = ({ label, onClick }) => (
+  <button
+    onClick={() => {
+      onClick();
+    }}
+    className="w-full text-left px-4 py-3 hover:bg-gray-100"
+  >
+    {label}
+  </button>
+);
+
+const PasswordField = ({ value, setValue, show, setShow, placeholder }) => (
+  <div className="flex items-center border rounded-xl px-3 py-2 mb-4">
+    <FaLock className="text-gray-400 mr-2" />
+    <input
+      type={show ? "text" : "password"}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      className="w-full outline-none"
+    />
+    <button onClick={() => setShow((p) => !p)}>
+      {show ? <FaEye /> : <FaEyeSlash />}
+    </button>
+  </div>
+);
 
 export default Navbar;

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../utils/api";
 import "../styles/LoadingSpinner.css";
+import { FiEye, FiEyeOff, FiMail, FiLock } from "react-icons/fi";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const checkAuth = async (retries = 2, delay = 100) => {
@@ -36,31 +38,33 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate("/habits");
     }
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       await api.post("/api/auth/login", { email, password });
       const isAuth = await checkAuth();
       if (isAuth) {
-        toast.success("Logged in successfully");
+        toast.success("Welcome back! Logged in successfully");
+        navigate("/habits");
       } else {
-        setError("Authentication failed after login");
+        setError("Authentication failed. Please try again.");
       }
     } catch (err) {
-      setError(err.response?.data?.msg || "Login failed");
+      setError(err.response?.data?.msg || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !isAuthenticated) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gray-100">
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 z-50">
         <div className="loadingspinner">
           <div id="square1"></div>
           <div id="square2"></div>
@@ -73,57 +77,82 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="w-full max-w-[90%] sm:max-w-md bg-white border border-gray-300 rounded-lg shadow-lg p-6 sm:p-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 text-center mb-6">
-          Login
-        </h1>
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 font-medium">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-700 font-medium">Password</label>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-              required
-              disabled={isLoading}
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 p-8">
+          <h1 className="text-3xl font-extrabold text-center text-gray-900 mb-8">
+            Welcome Back
+          </h1>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <FiMail className="absolute left-3 top-3 text-gray-400 text-lg" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                  placeholder="you@example.com"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-3 text-gray-400 text-lg" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                  placeholder="••••••••"
+                  required
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-emerald-600 transition"
+                >
+                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                </button>
+              </div>
+            </div>
+
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-sm text-gray-600 hover:text-green-500"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3.5 rounded-xl text-white font-semibold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {showPassword ? "Hide" : "Show"}
+              {isLoading ? "Logging in..." : "Login"}
             </button>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors disabled:bg-green-300"
-            disabled={isLoading}
-          >
-            Login
-          </button>
-        </form>
-        <p className="mt-4 text-center text-gray-600">
-          Not registered?{" "}
-          <Link to="/register" className="text-green-500 hover:underline">
-            Register
-          </Link>
-        </p>
+          </form>
+
+          <p className="mt-8 text-center text-gray-600">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-emerald-600 hover:text-emerald-700 hover:underline transition"
+            >
+              Sign up free
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

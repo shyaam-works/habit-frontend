@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../utils/api";
 import "../styles/LoadingSpinner.css";
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 
 const RegisterPage = () => {
   const [username, setUsername] = useState("");
@@ -11,16 +12,17 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const checkAuth = async () => {
     try {
       const res = await api.get("/api/auth/check");
       if (res.data.message === "Authenticated") {
-        navigate("/");
+        navigate("/habits");
       }
     } catch (err) {
-      // Stay on register page
+      // User not logged in → stay here
     }
   };
 
@@ -32,12 +34,15 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       await api.post("/api/auth/register", { username, email, password });
-      toast.success("Registered and logged in successfully");
-      navigate("/");
+      toast.success("Account created! Welcome aboard 🎉", {
+        style: { backgroundColor: "#10b981", color: "#fff" },
+      });
+      navigate("/habits");
     } catch (err) {
-      setError(err.response?.data?.msg || "Registration failed");
+      setError(err.response?.data?.msg || "Registration failed. Try again.");
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +50,7 @@ const RegisterPage = () => {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gray-100">
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50 z-50">
         <div className="loadingspinner">
           <div id="square1"></div>
           <div id="square2"></div>
@@ -58,68 +63,100 @@ const RegisterPage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="w-full max-w-[90%] sm:max-w-md bg-white border border-gray-300 rounded-lg shadow-lg p-6 sm:p-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 text-center mb-6">
-          Register
-        </h1>
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 font-medium">Username</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-gray-700 font-medium">Password</label>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-              required
-              disabled={isLoading}
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 px-4 py-12">
+      <div className="w-full max-w-md">
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 p-8">
+          <h1 className="text-3xl font-extrabold text-center text-gray-900 mb-8">
+            Create Account
+          </h1>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Username
+              </label>
+              <div className="relative">
+                <FiUser className="absolute left-3 top-3 text-gray-400 text-lg" />
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                  placeholder="johndoe"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <FiMail className="absolute left-3 top-3 text-gray-400 text-lg" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                  placeholder="you@example.com"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-3 text-gray-400 text-lg" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                  placeholder="••••••••"
+                  required
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-emerald-600 transition"
+                >
+                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                </button>
+              </div>
+            </div>
+
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 mt-6 text-sm text-gray-600 hover:text-green-500"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3.5 rounded-xl text-white font-semibold text-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70"
             >
-              {showPassword ? "Hide" : "Show"}
+              {isLoading ? "Creating account..." : "Sign Up Free"}
             </button>
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors disabled:bg-green-300"
-            disabled={isLoading}
-          >
-            Register
-          </button>
-        </form>
-        <p className="mt-4 text-center text-gray-600">
-          Already registered?{" "}
-          <Link to="/login" className="text-green-500 hover:underline">
-            Login
-          </Link>
-        </p>
+          </form>
+
+          <p className="mt-8 text-center text-gray-600">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-emerald-600 hover:text-emerald-700 hover:underline transition"
+            >
+              Login here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

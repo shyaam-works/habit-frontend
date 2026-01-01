@@ -79,28 +79,18 @@ const AllHabitsHeatPage = () => {
     }
   };
 
-  const handlePrevYear = () => {
-    setYear((prevYear) => prevYear - 1);
-    fetchHabits();
-  };
-
-  const handleNextYear = () => {
-    setYear((prevYear) => prevYear + 1);
-    fetchHabits();
-  };
-
   useEffect(() => {
     fetchHabits();
   }, [year]);
 
   return (
-    <div className="min-h-screen pt-20 px-4 flex flex-col items-center justify-center max-w-5xl mb-4 mx-4">
+    <div className="min-h-screen pt-20 px-4 flex flex-col items-center">
       <style>{`
-            .ch-domain-text {
-              font-size: 14px !important;
-              white-space: nowrap !important;
-            }
-          `}</style>
+        .ch-domain-text {
+          font-size: 14px !important;
+          white-space: nowrap !important;
+        }
+      `}</style>
       {isLoading ? (
         <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
           <div className="loader">
@@ -113,31 +103,42 @@ const AllHabitsHeatPage = () => {
             <div className="text-red-500 mb-4 text-center">{error}</div>
           )}
           {habits.length === 0 && !error ? (
-            <p className="text-sm md:text-lg">No habits found. Create one!</p>
+            <p className="text-sm md:text-lg text-center mt-20">
+              No habits found. Create one!
+            </p>
           ) : (
             habits.map((habitData) => (
-              <div key={habitData.habit._id} className="w-full mt-4">
-                <div className="flex items-center justify-center mb-2 w-screen mt-14 md:mt-8">
-                  <h1 className="text-2xl md:text-3xl font-bold">
-                    {habitData.habit.name}
-                  </h1>
-                  <button
-                    onClick={() => navigate(`/habit/${habitData.habit._id}`)}
-                    className="ml-4 px-2 py-1 text-xs md:text-sm font-normal text-white bg-blue-500 rounded-md hover:bg-blue-600 transition min-w-[80px]"
-                  >
-                    View Details
-                  </button>
+              <div key={habitData.habit._id} className="w-full mt-12">
+                {/* Header */}
+                <div className="flex flex-col items-center mb-8 mt-14 md:mt-8">
+                  <div className="flex items-center gap-4">
+                    <h1 className="text-2xl md:text-3xl font-bold text-center">
+                      {habitData.habit.name}
+                    </h1>
+                    <button
+                      onClick={() => navigate(`/habit/${habitData.habit._id}`)}
+                      className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl hover:from-emerald-700 hover:to-teal-700 shadow-md hover:shadow-lg transition-all duration-300"
+                    >
+                      View Details
+                    </button>
+                  </div>
                 </div>
-                <div className="text-sm md:text-lg mb-2 text-center w-screen justify-center">
+
+                {/* Streak Info */}
+                <div className="text-center text-sm md:text-lg mb-8">
                   Longest Streak: {habitData.habit.longestStreak} days | Current
                   Streak: {habitData.habit.currentStreak} days
                 </div>
-                <div className="flex justify-center mb-8">
+
+                {/* Heatmap - Perfectly centered like SingleHabitPage */}
+                <div className="flex justify-center">
                   <div className="w-[90vw] sm:w-full overflow-x-auto sm:overflow-x-visible pb-6">
                     <HeatmapNew
                       habit={habitData.habit}
                       dates={habitData.dates}
                       year={year}
+                      onPrevYear={() => setYear((y) => y - 1)}
+                      onNextYear={() => setYear((y) => y + 1)}
                     />
                   </div>
                 </div>
